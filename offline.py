@@ -48,7 +48,7 @@ def allocate_pairs_to_buckets(pairs, buckets):
         delta_err = pair[2]
         for bucket_id in buckets.keys():
             min_range, max_range = buckets[bucket_id]['range']
-            if delta_err >= min_range and delta_err < max_range:
+            if min_range <= delta_err < max_range:
                 buckets[bucket_id]['ranked_lists'].append(pair)
                 break
 
@@ -59,16 +59,3 @@ if __name__ == "__main__":
     pairs = create_positive_pairs()
     buckets = create_buckets()
     pp.pprint(allocate_pairs_to_buckets(pairs, buckets))
-
-
-
-
-
-
-
-
-
-
-
-
-
