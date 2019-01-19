@@ -1,6 +1,7 @@
 
 from data_parser import parse_log_data
 from pprint import pprint
+import numpy as np
 from numpy.random import binomial
 
 
@@ -16,9 +17,16 @@ class RandomClickModel:
             nclicks += len(clicks_per_session[id])
         return nclicks / ndocs
 
-    def simulate_clicks(self, size=3):
-        rho = self.rho
-        return binomial(1, rho, size)
+    def simulate_clicks(self, interleaved_results, *args):
+        clicked_or_not_clicked = binomial(
+            1, self.rho, len(interleaved_results))
+        return np.where(clicked_or_not_clicked)[0]
+
+
+def get_session_data_and_clicks_per_session():
+    log_file = "YandexRelPredChallenge.txt"
+    session_data, clicks_per_session = parse_log_data(log_file)
+    return session_data, clicks_per_session
 
 
 if __name__ == "__main__":
@@ -26,4 +34,4 @@ if __name__ == "__main__":
     session_data, clicks_per_session = parse_log_data(log_file)
     model = RandomClickModel(session_data, clicks_per_session)
     pprint("Rho: %0.3f" % model.rho)
-    pprint(model.simulate_clicks())
+    pprint(model.simulate_clicks([1, 2, 3, 4, 5, 6]))
