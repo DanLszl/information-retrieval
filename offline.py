@@ -21,7 +21,7 @@ def calculate_delta_err(pair):
 
 def create_positive_pairs(num_labels=2):
     labels = [label for label in range(num_labels)]
-    ranks = [[x, y, z] for x in labels for y in labels for z in labels]
+    ranks = [(x, y, z) for x in labels for y in labels for z in labels]
 
     return [(e, p, calculate_delta_err((e, p)))
             for e in ranks
@@ -34,7 +34,6 @@ def create_buckets(n_buckets=10, offset=0.05):
     for bucket_id in range(n_buckets):
         buckets[bucket_id] = dict()
         buckets[bucket_id]['range'] = [round(1/10*bucket_id, 2), round(1/n_buckets*(bucket_id + 1), 2)]
-        buckets[bucket_id]['ranked_lists'] = []
 
     # offset first and last bucket
     buckets[0]['range'][0] = offset
@@ -44,6 +43,8 @@ def create_buckets(n_buckets=10, offset=0.05):
 
 
 def allocate_pairs_to_buckets(pairs, buckets):
+    for bucket in buckets.values():
+        bucket['ranked_lists'] = []
     for pair in pairs:
         delta_err = pair[2]
         for bucket_id in buckets.keys():
