@@ -112,7 +112,7 @@ class ProbabilisticInterleaving:
 
     def update_dists(self):
         self.prod_dist = self.probability_dist_over_ranks(self.prod_ranks)
-        self.exp_dist = self.probability_dist_over_ranks(self.prod_ranks)
+        self.exp_dist = self.probability_dist_over_ranks(self.exp_ranks)
 
     def probability_dist_over_ranks(self, ranks):
         '''
