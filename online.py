@@ -8,45 +8,50 @@ def randbit():
     return random.random() > 0.5
 
 
-def choose_from_A_and_delete_from_both(A, B, ranking_name):
-    '''choose_from_A_and_delete_from_both'''
-    doc = A.pop(0)
-    try:
-        i = B.index(doc)
-        del B[i]
-    except ValueError:
-        print('{} : doc {} is not in the other ranking'.format(ranking_name, doc))
-    return doc
+class TeamDraftInterleaving:
+    def __init__(self, production_ranking, experimental_ranking):
+        self.production_ranking, self.experimental_ranking = production_ranking, experimental_ranking
 
 
-def team_draft_interleaving(production_ranking, experimental_ranking):
-    '''
-        production_ranking = [a_1, a_2, ..., a_n]
-        experimental_ranking = [b_1, b_2, ..., b_n]
-        where a_i and b_i are document ids
-        It is assumed that both rankings contain unique documents
-    '''
+    @staticmethod
+    def choose_from_A_and_delete_from_both(A, B, ranking_name):
+        '''choose_from_A_and_delete_from_both'''
+        doc = A.pop(0)
+        try:
+            i = B.index(doc)
+            del B[i]
+        except ValueError:
+            print('{} : doc {} is not in the other ranking'.format(ranking_name, doc))
+        return doc
 
-    # Copying, so we can modify these from now on
-    production_ranking = copy.copy(production_ranking)
-    experimental_ranking = copy.copy(experimental_ranking)
+    def run(self):
+        '''
+            production_ranking = [a_1, a_2, ..., a_n]
+            experimental_ranking = [b_1, b_2, ..., b_n]
+            where a_i and b_i are document ids
+            It is assumed that both rankings contain unique documents
+        '''
+        production_ranking, experimental_ranking = self.production_ranking, self.experimental_ranking
+        # Copying, so we can modify these from now on
+        production_ranking = copy.copy(production_ranking)
+        experimental_ranking = copy.copy(experimental_ranking)
 
-    interleaved = []  # Interleaved ranking
-    TeamA = []
-    TeamB = []
+        interleaved = []  # Interleaved ranking
+        TeamA = []
+        TeamB = []
 
-    while len(production_ranking) > 0 or len(experimental_ranking) > 0:
-        if (len(TeamA) < len(TeamB)) or (len(TeamA) == len(TeamB) and randbit()):
-            # Chosing from production ranking
-            doc = choose_from_A_and_delete_from_both(production_ranking, experimental_ranking, 'production')
-            interleaved.append(doc)
-            TeamA.append(doc)
-        else:
-            doc = choose_from_A_and_delete_from_both(production_ranking, experimental_ranking, 'experimental')
-            interleaved.append(doc)
-            TeamB.append(doc)
+        while len(production_ranking) > 0 or len(experimental_ranking) > 0:
+            if (len(TeamA) < len(TeamB)) or (len(TeamA) == len(TeamB) and randbit()):
+                # Chosing from production ranking
+                doc = self.choose_from_A_and_delete_from_both(production_ranking, experimental_ranking, 'production')
+                interleaved.append(doc)
+                TeamA.append(doc)
+            else:
+                doc = self.choose_from_A_and_delete_from_both(production_ranking, experimental_ranking, 'experimental')
+                interleaved.append(doc)
+                TeamB.append(doc)
 
-    return interleaved, TeamA, TeamB
+        return interleaved, TeamA, TeamB
 
 
 def generate_docs():
@@ -59,9 +64,11 @@ def generate_docs():
     return prod_ranking, exp_ranking
 
 
-def test_team_draft_interleaving():
-    prod_ranking, exp_ranking = generate_docs()
-    interleaved_ranking, prod_docs, exp_docs = team_draft_interleaving(prod_ranking, exp_ranking)
+def test_team_draft_interleaving(docs=None):
+    docs = generate_docs() if docs is None else docs
+    prod_ranking, exp_ranking = docs
+    team_draft = TeamDraftInterleaving(prod_ranking, exp_ranking)
+    interleaved_ranking, prod_docs, exp_docs = team_draft.run()
     print('Rankings Interleaved:', interleaved_ranking)
     print('Docs of P:', prod_docs)
     print('Docs of E:', exp_docs)
@@ -173,5 +180,5 @@ def test_probabilistic():
 
 
 if __name__ == '__main__':
-    # test_team_draft_interleaving()
-    test_probabilistic()
+    test_team_draft_interleaving()
+    # test_probabilistic()
