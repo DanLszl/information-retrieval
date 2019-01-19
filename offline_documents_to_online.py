@@ -2,9 +2,8 @@ from pprint import pprint
 
 from collections import namedtuple
 from itertools import permutations
-from collections import defaultdict
 
-from offline import create_positive_pairs, create_buckets, allocate_pairs_to_buckets
+from offline import create_positive_pairs, create_buckets
 
 RankingPair = namedtuple('RankingPair', ['E', 'P', 'rel_E', 'rel_P'])
 
@@ -70,6 +69,14 @@ def allocate_to_buckets(relevances, buckets):
                 bucket['relevances'][rel_pair] = data
                 break
 
+    return buckets
+
+
+def get_buckets():
+    pairs = create_positive_pairs()
+    rankings = convert_pairs_of_relevances_to_possible_rankings(pairs)
+    buckets = create_buckets()
+    allocate_to_buckets(rankings, buckets)
     return buckets
 
 
