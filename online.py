@@ -1,6 +1,5 @@
 import numpy as np
 import random
-import copy
 import string
 
 
@@ -10,8 +9,8 @@ def randbit():
 
 class TeamDraftInterleaving:
     def __init__(self, production_ranking, experimental_ranking):
-        self.production_ranking, self.experimental_ranking = production_ranking, experimental_ranking
-
+        self.prod_ranking = list(production_ranking)
+        self.exp_ranking = list(experimental_ranking)
 
     @staticmethod
     def choose_from_A_and_delete_from_both(A, B, ranking_name):
@@ -24,6 +23,12 @@ class TeamDraftInterleaving:
             print('{} : doc {} is not in the other ranking'.format(ranking_name, doc))
         return doc
 
+    def choose_from_prod(self):
+        return self.choose_from_A_and_delete_from_both(self.prod_ranking, self.exp_ranking, 'Prod')
+
+    def choose_from_exp(self):
+        return self.choose_from_A_and_delete_from_both(self.exp_ranking, self.prod_ranking, 'Exp')
+
     def run(self):
         '''
             production_ranking = [a_1, a_2, ..., a_n]
@@ -31,25 +36,38 @@ class TeamDraftInterleaving:
             where a_i and b_i are document ids
             It is assumed that both rankings contain unique documents
         '''
-        production_ranking, experimental_ranking = self.production_ranking, self.experimental_ranking
-        # Copying, so we can modify these from now on
-        production_ranking = copy.copy(production_ranking)
-        experimental_ranking = copy.copy(experimental_ranking)
 
         interleaved = []  # Interleaved ranking
         TeamA = []
         TeamB = []
 
-        while len(production_ranking) > 0 or len(experimental_ranking) > 0:
-            if (len(TeamA) < len(TeamB)) or (len(TeamA) == len(TeamB) and randbit()):
+        for interleaved_idx in range(len(self.prod_ranking) + len(self.exp_ranking)):
+            if len(self.prod_ranking) == 0 and len(self.exp_ranking) == 0:
+                break
+
+            if len(self.exp_ranking) == 0:
+                doc = self.choose_from_prod()
+                winning_team = TeamA
+            elif len(self.prod_ranking) == 0:
+                doc = self.choose_from_exp()
+                winning_team = TeamB
+            elif len(TeamA) < len(TeamB):
                 # Chosing from production ranking
-                doc = self.choose_from_A_and_delete_from_both(production_ranking, experimental_ranking, 'production')
-                interleaved.append(doc)
-                TeamA.append(doc)
+                doc = self.choose_from_prod()
+                winning_team = TeamA
+            elif len(TeamB) < len(TeamA):
+                doc = self.choose_from_exp()
+                winning_team = TeamB
             else:
-                doc = self.choose_from_A_and_delete_from_both(production_ranking, experimental_ranking, 'experimental')
-                interleaved.append(doc)
-                TeamB.append(doc)
+                if randbit():
+                    doc = self.choose_from_prod()
+                    winning_team = TeamA
+                else:
+                    doc = self.choose_from_exp()
+                    winning_team = TeamB
+
+            interleaved.append(doc)
+            winning_team.append(doc)
 
         return interleaved, TeamA, TeamB
 
@@ -81,10 +99,10 @@ def softmax(x):
 
 class ProbabilisticInterleaving:
     def __init__(self, prod_ranking, exp_ranking, tau=3):
-        self.prod_ranking = copy.copy(prod_ranking)
+        self.prod_ranking = list(prod_ranking)
         self.prod_ranks = list(range(1, len(prod_ranking)+1))
 
-        self.exp_ranking = copy.copy(exp_ranking)
+        self.exp_ranking = list(exp_ranking)
         self.exp_ranks = list(range(1, len(exp_ranking)+1))
         self.tau = tau
 
@@ -154,16 +172,25 @@ class ProbabilisticInterleaving:
         TeamA = []
         TeamB = []
 
-        while len(self.prod_ranking) > 0 or len(self.exp_ranking) > 0:
-            if randbit():
-                # Chosing from production ranking
+        for interleaved_idx in range(len(self.prod_ranking)+len(self.exp_ranking)):
+            if len(self.prod_ranking) == 0 and len(self.exp_ranking) == 0:
+                break
+
+            if len(self.exp_ranking) == 0:
                 doc = self.choose_from_prod()
-                interleaved.append(doc)
-                TeamA.append(doc)
+                winning_team = TeamA
+            elif len(self.prod_ranking) == 0:
+                doc = self.choose_from_exp()
+                winning_team = TeamB
+            elif randbit():
+                doc = self.choose_from_prod()
+                winning_team = TeamA
             else:
                 doc = self.choose_from_exp()
-                interleaved.append(doc)
-                TeamB.append(doc)
+                winning_team = TeamB
+
+            interleaved.append(doc)
+            winning_team.append(doc)
 
         return interleaved, TeamA, TeamB
 
@@ -181,4 +208,4 @@ def test_probabilistic():
 
 if __name__ == '__main__':
     test_team_draft_interleaving()
-    # test_probabilistic()
+    test_probabilistic()
