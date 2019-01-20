@@ -39,9 +39,9 @@ def get_sample_size(p_1, p_0=0.5, alpha=0.05, beta=0.1):
     delta = abs(p_1 - p_0)
     z_alpha = norm.ppf(1-alpha)
     z_beta = norm.ppf(1-beta)
-    #print(z_alpha)
-    #print(z_beta)
-
+    
+    
+    print(p_1)
     N = (z_alpha * sqrt(p_0*(1-p_0)) + z_beta * sqrt(p_1*(1-p_1)))
 
     if N == 0.0 or (p_1 - p_0) == 0.0:
@@ -70,6 +70,7 @@ def determine_sample_sizes(n, k):
         for interleaving, clicks in results.items():
             for click_model, bucket in clicks.items():
                 for b_id, wins in bucket.items():
+                    print('wins E', wins['E'])
                     p_1 = wins['E'] / k     # proportion of wins
                     N = get_sample_size(p_1)
                     table[interleaving][click_model][b_id]['p_1'].append(p_1)
