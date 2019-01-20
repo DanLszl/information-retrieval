@@ -9,6 +9,7 @@ from collections import defaultdict
 from click_experiments import run_click_experiments
 
 # TODO: should ties be removed? - currently they have been removed
+# TODO: interleave should be capped @3
 
 def get_sample_size(p_1, p_0=0.5, alpha=0.05, beta=0.1):
     '''
