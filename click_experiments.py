@@ -5,9 +5,20 @@ from offline_documents_to_online import get_buckets
 from online import ProbabilisticInterleaving, TeamDraftInterleaving
 
 from rcm import RandomClickModel, get_session_data_and_clicks_per_session
+from PBM import PositionBasedModel
 
 
 DEBUG = False
+
+session_data, clicks_per_session = get_session_data_and_clicks_per_session()
+rcm = RandomClickModel(session_data, clicks_per_session)
+pbm = PositionBasedModel(session_data, clicks_per_session)
+
+click_models = {'random': rcm,
+                'position-based': pbm}
+
+interleavings = {'probabilistic': ProbabilisticInterleaving,
+                 'team-draft': TeamDraftInterleaving}
 
 
 def iterate_bucket(bucket):
@@ -55,29 +66,39 @@ def simulate_interleaving_experiment(buckets, interleaving_factory, click_model,
                 print('interleaved:', interleaved)
                 print('prod_docs', prod_docs)
                 print('exp_docs', exp_docs)
-                print('clicks', clicks)
+                print('clicks', [interleaved[c] for c in clicks])
 
-            for click in clicks:
-                doc = interleaved[click]
-                if doc in prod_docs:
-                    wins['P'] += 1
-                if doc in exp_docs:
-                    wins['E'] += 1
+            winner = assign_winner(clicks, exp_docs, prod_docs, interleaved)
+            if winner == 'E':
+                wins['E'] += 1
+            elif winner == 'P':
+                wins['P'] += 1
 
 
-interleavings = {'probabilistic': ProbabilisticInterleaving,
-                 'team-draft': TeamDraftInterleaving}
+def assign_winner(clicks, exp_docs, prod_docs, interleaved):
+    click_count_E = 0
+    click_count_P = 0
 
-click_models = {'random': RandomClickModel}
+    for click_idx in clicks:
+        clicked_doc = interleaved[click_idx]
+        if clicked_doc in exp_docs:
+            click_count_E += 1
+        elif clicked_doc in prod_docs:
+            click_count_P += 1
+
+    if click_count_E > click_count_P:
+        return 'E'
+    elif click_count_P > click_count_E:
+        return 'P'
+    else:
+        return 'T'
 
 
 def run_click_experiments(k):
-    session_data, clicks_per_session = get_session_data_and_clicks_per_session()
     results = defaultdict(dict)
-    for interleaving_name, interleaving_factory in interleavings.items():
-        for click_model_name, click_model_factory in click_models.items():
+    for click_model_name, click_model in click_models.items():
+        for interleaving_name, interleaving_factory in interleavings.items():
             buckets = get_buckets()
-            click_model = click_model_factory(session_data, clicks_per_session)
             simulate_interleaving_experiment(
                 buckets, interleaving_factory, click_model, k=k)
 
@@ -88,8 +109,9 @@ def run_click_experiments(k):
 
 
 if __name__ == '__main__':
-    results = run_click_experiments(100)
-    pprint(results)
+    for experiment in range(2):
+        results = run_click_experiments(100)
+        pprint(results)
 
 
 if __name__ == '__test__':

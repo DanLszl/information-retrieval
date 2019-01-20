@@ -8,6 +8,7 @@ from collections import defaultdict
 
 from click_experiments import run_click_experiments
 
+# TODO: should ties be removed? - currently they have been removed
 
 def get_sample_size(p_1, p_0=0.5, alpha=0.05, beta=0.1):
     '''
@@ -38,6 +39,7 @@ def get_sample_size(p_1, p_0=0.5, alpha=0.05, beta=0.1):
     delta = abs(p_1 - p_0)
     z_alpha = norm.ppf(1-alpha)
     z_beta = norm.ppf(1-beta)
+    
     N = (z_alpha * sqrt(p_0*(1-p_0)) + z_beta * sqrt(p_1*(1-p_1)))
 
     if N == 0.0 or (p_1 - p_0) == 0.0:
@@ -57,17 +59,19 @@ def nested_defaultdict(depth, inner_factory=list):
 
 
 def determine_sample_sizes(n, k):
-    # TODO: p1 proportions are small for larger buckets, this is counterintuitive
     table = nested_defaultdict(4)
     for i in range(n):
         print('iteration:', i)
         results = run_click_experiments(k)
-        # pprint(results)
+        # pprint(results) #debug
 
         for interleaving, clicks in results.items():
             for click_model, bucket in clicks.items():
                 for b_id, wins in bucket.items():
-                    p_1 = wins['E'] / k     # proportion of wins
+                    if (wins['E'] + wins['P']) > 0:
+                        p_1 = wins['E'] / (wins['E'] + wins['P'])     # proportion of wins
+                    else:
+                        p_1 = wins['E'] / k
                     N = get_sample_size(p_1)
                     table[interleaving][click_model][b_id]['p_1'].append(p_1)
                     table[interleaving][click_model][b_id]['N'].append(ceil(N))
@@ -89,11 +93,25 @@ def get_final_table(sample_sizes):
     return final_table
 
 
+def print_final_table(final_table):
+    for interleaving in final_table.keys():
+        for click_model in final_table[interleaving].keys():
+            print('\n')
+            print('Interleaving Method: {} - Click Model: {}'.format(interleaving, click_model))
+            print('----------| Min |---| Median |---| Max |')
+            for b_id, bucket in final_table[interleaving][click_model].items():
+                print('bucket{}---| {} |---| {} |---| {} |'.format(b_id+1, bucket['min N'],
+                        bucket['median N'], bucket['max N']))
+                print('-'*44)
+
+
 if __name__ == '__main__':
-    sample_sizes = determine_sample_sizes(n=100, k=100)
-    pprint(sample_sizes)
+    sample_sizes = determine_sample_sizes(n=20, k=100)
+    
 
     final_table = get_final_table(sample_sizes)
+
+    print_final_table(final_table)
     pprint(final_table)
 
 
