@@ -8,6 +8,7 @@ from collections import defaultdict
 
 from click_experiments import run_click_experiments
 
+# TODO: should ties be removed?
 
 def get_sample_size(p_1, p_0=0.5, alpha=0.05, beta=0.1):
     '''
@@ -38,6 +39,9 @@ def get_sample_size(p_1, p_0=0.5, alpha=0.05, beta=0.1):
     delta = abs(p_1 - p_0)
     z_alpha = norm.ppf(1-alpha)
     z_beta = norm.ppf(1-beta)
+    #print(z_alpha)
+    #print(z_beta)
+
     N = (z_alpha * sqrt(p_0*(1-p_0)) + z_beta * sqrt(p_1*(1-p_1)))
 
     if N == 0.0 or (p_1 - p_0) == 0.0:
@@ -57,7 +61,6 @@ def nested_defaultdict(depth, inner_factory=list):
 
 
 def determine_sample_sizes(n, k):
-    # TODO: p1 proportions are small for larger buckets, this is counterintuitive
     table = nested_defaultdict(4)
     for i in range(n):
         print('iteration:', i)
@@ -90,7 +93,7 @@ def get_final_table(sample_sizes):
 
 
 if __name__ == '__main__':
-    sample_sizes = determine_sample_sizes(n=100, k=100)
+    sample_sizes = determine_sample_sizes(n=20, k=100)
     pprint(sample_sizes)
 
     final_table = get_final_table(sample_sizes)

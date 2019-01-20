@@ -5,6 +5,7 @@ from offline_documents_to_online import get_buckets
 from online import ProbabilisticInterleaving, TeamDraftInterleaving
 
 from rcm import RandomClickModel, get_session_data_and_clicks_per_session
+from PBM import PositionBasedModel
 
 
 DEBUG = False
@@ -70,14 +71,17 @@ interleavings = {'probabilistic': ProbabilisticInterleaving,
 
 click_models = {'random': RandomClickModel}
 
+click_models = {'random': RandomClickModel,
+                'position-based': PositionBasedModel}
+
 
 def run_click_experiments(k):
     session_data, clicks_per_session = get_session_data_and_clicks_per_session()
     results = defaultdict(dict)
-    for interleaving_name, interleaving_factory in interleavings.items():
-        for click_model_name, click_model_factory in click_models.items():
+    for click_model_name, click_model_factory in click_models.items():
+        click_model = click_model_factory(session_data, clicks_per_session)
+        for interleaving_name, interleaving_factory in interleavings.items():
             buckets = get_buckets()
-            click_model = click_model_factory(session_data, clicks_per_session)
             simulate_interleaving_experiment(
                 buckets, interleaving_factory, click_model, k=k)
 
