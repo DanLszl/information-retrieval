@@ -10,6 +10,15 @@ from PBM import PositionBasedModel
 
 DEBUG = False
 
+session_data, clicks_per_session = get_session_data_and_clicks_per_session()
+rcm = RandomClickModel(session_data, clicks_per_session)
+pbm = PositionBasedModel(session_data, clicks_per_session)
+
+click_models = {'random': rcm,
+                'position-based': pbm}
+
+interleavings = {'probabilistic': ProbabilisticInterleaving,
+                 'team-draft': TeamDraftInterleaving}
 
 def iterate_bucket(bucket):
     while True:
@@ -66,20 +75,9 @@ def simulate_interleaving_experiment(buckets, interleaving_factory, click_model,
                     wins['E'] += 1
 
 
-interleavings = {'probabilistic': ProbabilisticInterleaving,
-                 'team-draft': TeamDraftInterleaving}
-
-click_models = {'random': RandomClickModel}
-
-click_models = {'random': RandomClickModel,
-                'position-based': PositionBasedModel}
-
-
 def run_click_experiments(k):
-    session_data, clicks_per_session = get_session_data_and_clicks_per_session()
     results = defaultdict(dict)
-    for click_model_name, click_model_factory in click_models.items():
-        click_model = click_model_factory(session_data, clicks_per_session)
+    for click_model_name, click_model in click_models.items():
         for interleaving_name, interleaving_factory in interleavings.items():
             buckets = get_buckets()
             simulate_interleaving_experiment(
@@ -92,8 +90,9 @@ def run_click_experiments(k):
 
 
 if __name__ == '__main__':
-    results = run_click_experiments(100)
-    pprint(results)
+    for experiment in range(2):
+        results = run_click_experiments(100)
+        pprint(results)
 
 
 if __name__ == '__test__':
