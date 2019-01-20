@@ -15,7 +15,6 @@ def iterate_bucket(bucket):
         relevances = bucket['relevances']
         if not relevances:
             return
-        print(relevances)
         for rel_pair, data in relevances.items():
             for ranking in data['rankings']:
                 yield ranking
@@ -47,11 +46,10 @@ def simulate_interleaving_experiment(buckets, interleaving_factory, click_model,
                 i = docs.index(doc)
                 relevances.append(rel[i])
 
-            print('relevances:', relevances)
-
             clicks = click_model.simulate_clicks(interleaved, relevances)
 
             if DEBUG:
+                print('relevances:', relevances)
                 print(ranking)
                 print('Rankings:', prod_ranking, exp_ranking)
                 print('interleaved:', interleaved)

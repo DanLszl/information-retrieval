@@ -20,7 +20,8 @@ class TeamDraftInterleaving:
             i = B.index(doc)
             del B[i]
         except ValueError:
-            print('{} : doc {} is not in the other ranking'.format(ranking_name, doc))
+            pass
+            # print('{} : doc {} is not in the other ranking'.format(ranking_name, doc))
         return doc
 
     def choose_from_prod(self):
@@ -145,7 +146,8 @@ class ProbabilisticInterleaving:
             del B[i]
             del ranks_B[i]
         except ValueError:
-            print('Doc {} was not in the {} ranking'.format(doc, A_name))
+            pass
+            # print('Doc {} was not in the {} ranking'.format(doc, A_name))
 
         self.update_dists()
         return doc
