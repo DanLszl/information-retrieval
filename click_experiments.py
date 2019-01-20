@@ -20,6 +20,7 @@ click_models = {'random': rcm,
 interleavings = {'probabilistic': ProbabilisticInterleaving,
                  'team-draft': TeamDraftInterleaving}
 
+
 def iterate_bucket(bucket):
     while True:
         relevances = bucket['relevances']
@@ -65,14 +66,32 @@ def simulate_interleaving_experiment(buckets, interleaving_factory, click_model,
                 print('interleaved:', interleaved)
                 print('prod_docs', prod_docs)
                 print('exp_docs', exp_docs)
-                print('clicks', clicks)
+                print('clicks', [interleaved[c] for c in clicks])
 
-            for click in clicks:
-                doc = interleaved[click]
-                if doc in prod_docs:
-                    wins['P'] += 1
-                if doc in exp_docs:
-                    wins['E'] += 1
+            winner = assign_winner(clicks, exp_docs, prod_docs, interleaved)
+            if winner == 'E':
+                wins['E'] += 1
+            elif winner == 'P':
+                wins['P'] += 1
+
+
+def assign_winner(clicks, exp_docs, prod_docs, interleaved):
+    click_count_E = 0
+    click_count_P = 0
+
+    for click_idx in clicks:
+        clicked_doc = interleaved[click_idx]
+        if clicked_doc in exp_docs:
+            click_count_E += 1
+        elif clicked_doc in prod_docs:
+            click_count_P += 1
+
+    if click_count_E > click_count_P:
+        return 'E'
+    elif click_count_P > click_count_E:
+        return 'P'
+    else:
+        return 'T'
 
 
 def run_click_experiments(k):

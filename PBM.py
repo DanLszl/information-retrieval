@@ -7,7 +7,6 @@ from numpy.random import binomial
 from data_parser import parse_log_data
 
 
-
 class PositionBasedModel:
 	def __init__(self, session_data, clicks_per_session, fixed_alpha = 1e-2):
 		self.alphas, self.gammas = self.estimate_parameters(session_data, clicks_per_session)
@@ -78,7 +77,7 @@ class PositionBasedModel:
 	def simulate_clicks(self, interleaved_results, *args):
 		p_click = self.click_probability(interleaved_results, args[0])
 		clicks = np.array([binomial(1, prob) for prob in p_click])
-		
+
 		return np.where(clicks)[0]
 
 
@@ -98,8 +97,8 @@ class PositionBasedModel:
  
 if __name__ == "__main__":
 	interleaved_results = [2, 0, 3, 1, 4]
-	relevance = [1, 0, 0, 1, 0]
-	log_file = "YandexRelPredChallenge.txt"
+	relevance = [1, 1, 1, 1, 1]
+	log_file = "test2.txt"
 	session_data, clicks_per_session = parse_log_data(log_file)
 	pmb_model = PositionBasedModel(session_data, clicks_per_session)
 	pmb_model.simulate_clicks(interleaved_results, relevance)
