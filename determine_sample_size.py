@@ -108,12 +108,8 @@ def print_final_table(final_table):
 
 if __name__ == '__main__':
     sample_sizes = determine_sample_sizes(n=20, k=100)
-    
-
     final_table = get_final_table(sample_sizes)
-
     print_final_table(final_table)
-    pprint(final_table)
 
 
 if __name__ == '__test__':
