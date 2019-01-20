@@ -28,7 +28,7 @@ class RandomClickModel:
 
 
 def get_session_data_and_clicks_per_session():
-    log_file = "test2.txt"
+    log_file = "YandexRelPredChallenge.txt"
     session_data, clicks_per_session = parse_log_data(log_file)
     return session_data, clicks_per_session
 

@@ -7,7 +7,6 @@ from numpy.random import binomial
 from data_parser import parse_log_data
 
 
-
 class PositionBasedModel:
 	def __init__(self, session_data, clicks_per_session, fixed_alpha = 1e-2):
 		self.alphas, self.gammas = self.estimate_parameters(session_data, clicks_per_session)
@@ -93,8 +92,6 @@ class PositionBasedModel:
 
 		return p_gammas * p_alphas
 
-
-		
  
 if __name__ == "__main__":
 	interleaved_results = [2, 0, 3, 1, 4]
