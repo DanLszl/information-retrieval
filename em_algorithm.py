@@ -6,7 +6,6 @@ import numpy as np
 from data_parser import parse_log_data
 
 
-
 def estimate_alphas(alphas, gammas, session_data, clicks_per_session):
 	_alphas = defaultdict(lambda: defaultdict(list))
 
@@ -51,7 +50,10 @@ def estimate_gammas(alphas, gammas, session_data, clicks_per_session):
 	return gammas
 
 
-def em_algorithm(session_data, clicks_per_session, num_iterations = 50, convergence_criteria = 10**-5):
+def estimate_parameters(session_data, clicks_per_session, num_iterations = 50, convergence_criteria = 10**-5):
+	'''
+	EM algorithm
+	'''
 	alphas = defaultdict(lambda:np.random.uniform(0.25, 0.75))
 	gammas = defaultdict(lambda:np.random.uniform(0.25, 0.75))
 
@@ -70,5 +72,5 @@ def em_algorithm(session_data, clicks_per_session, num_iterations = 50, converge
 if __name__ == "__main__":
 	log_file = "YandexRelPredChallenge.txt"
 	session_data, clicks_per_session = parse_log_data(log_file)
-	alphas, gammas = em_algorithm(session_data, clicks_per_session, num_iterations = 50)
+	alphas, gammas = estimate_parameters(session_data, clicks_per_session, num_iterations = 50)
 	pprint(gammas)
