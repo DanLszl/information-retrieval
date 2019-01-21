@@ -109,9 +109,8 @@ def run_click_experiments(k):
 
 
 if __name__ == '__main__':
-    for experiment in range(2):
-        results = run_click_experiments(100)
-        pprint(results)
+    results = run_click_experiments(100)
+    pprint(results)
 
 
 if __name__ == '__test__':

@@ -18,13 +18,16 @@ class RandomClickModel:
         return nclicks / ndocs
 
     def simulate_clicks(self, interleaved_results, *args):
-        clicked_or_not_clicked = self.click_probability(interleaved_results)
-        return np.where(clicked_or_not_clicked)[0]
-
+        '''
+        Returns idx of clicked document on the interleaved_results list
+        '''
+        p_click = self.click_probability(interleaved_results)
+        clicks = np.array([binomial(1, prob) for prob in p_click])
+        return np.where(clicks)[0]
+        
     def click_probability(self, interleaved_results):
-        clicked_or_not_clicked = binomial(
-            1, self.rho, len(interleaved_results))
-        return clicked_or_not_clicked
+        click_probabilities = [self.rho for _ in range(len(interleaved_results))]
+        return click_probabilities
 
 
 def get_session_data_and_clicks_per_session():
